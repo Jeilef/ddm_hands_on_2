@@ -20,6 +20,7 @@ object Sindy {
         (row.getAs(column).toString, index.toString + "_" + column.toString)
       }))
     }).reduce(_.union(_))
+      .distinct()
         .groupBy("_1")
 
   }
