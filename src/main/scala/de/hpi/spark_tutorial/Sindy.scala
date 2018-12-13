@@ -15,7 +15,7 @@ object Sindy {
     import spark.implicits._
     val bcNames = spark.sparkContext.broadcast(datasets.map(dataset => dataset.columns))
 
-    val longDatasets = Range(0,bcNames.value.size).map( index => {
+    val longDatasets = bcNames.value.indices.map( index => {
       datasets(index).flatMap(row => bcNames.value(index).map( column => {
         (column.toString, row.getAs(column).toString)
       }))
