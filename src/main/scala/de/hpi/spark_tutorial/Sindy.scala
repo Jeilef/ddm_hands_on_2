@@ -17,9 +17,10 @@ object Sindy {
 
     val longDatasets = bcNames.value.indices.map( index => {
       datasets(index).flatMap(row => bcNames.value(index).map( column => {
-        (column.toString, row.getAs(column).toString)
+        (row.getAs(column).toString, index.toString + "_" + column.toString)
       }))
-    })
-    longDatasets.foreach(_.show)
+    }).reduce(_.union(_))
+        .groupBy("_1")
+
   }
 }
