@@ -40,7 +40,6 @@ object SimpleSpark extends App {
     spark.conf.set("spark.sql.shuffle.partitions", "8") //
 
     // Importing implicit encoders for standard library classes and tuples that are used as Dataset types
-    import spark.implicits._
 
     //------------------------------------------------------------------------------------------------------------------
     // Loading data

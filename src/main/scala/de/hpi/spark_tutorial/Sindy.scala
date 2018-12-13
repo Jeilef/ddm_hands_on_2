@@ -12,23 +12,14 @@ object Sindy {
       .option("delimiter", ";")
       .csv(file))
 
-    //datasets.flatMap(row => row.columns.map(
-    //  columnName => (columnName, row.getAs(columnName))
-
-    /*val temp = datasets.head.flatMap(row => {
-      val dict = row.getValuesMap(bcNames.value(0))
-      dict.toList.map( e => (e._1.toString, e._2.toString))
-    })*/
     import spark.implicits._
     val bcNames = spark.sparkContext.broadcast(datasets.map(dataset => dataset.columns))
-    //))
-    bcNames.value.foreach(_.foreach(println))
-    val temp = datasets.head.flatMap(row => bcNames.value(0).map( column => {
-      (column.toString, row.getAs(column).toString)
-    }))
-    temp.show()
-    datasets.head.show()
 
-
+    val longDatasets = Range(0,bcNames.value.size).map( index => {
+      datasets(index).flatMap(row => bcNames.value(index).map( column => {
+        (column.toString, row.getAs(column).toString)
+      }))
+    })
+    longDatasets.foreach(_.show)
   }
 }
