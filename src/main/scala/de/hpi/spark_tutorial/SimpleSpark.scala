@@ -64,7 +64,8 @@ object SimpleSpark extends App {
 
     val inputs = List("region", "nation", "supplier", "customer", "part", "lineitem", "orders")
       .map(name => s"./TPCH/tpch_$name.csv")
-
-    time {Sindy.discoverINDs(inputs, spark)}
+    val reducedInputs = List("region", "nation")
+      .map(name => s"./TPCH/tpch_$name.csv")
+    time {Sindy.discoverINDs(reducedInputs, spark)}
   }
 }
