@@ -30,7 +30,6 @@ object SimpleSpark extends App {
     // Setting up a Spark Session
     //------------------------------------------------------------------------------------------------------------------
 
-    // Create a SparkSession to work with Spark
     val sparkBuilder = SparkSession
       .builder()
       .appName("SparkTutorial")
@@ -55,15 +54,9 @@ object SimpleSpark extends App {
       result
     }
 
-    // Read a Dataset from a file
-    val employees = spark.read
-      .option("inferSchema", "true")
-      .option("header", "true")
-      .csv("data/employees.csv") // also text, json, jdbc, parquet
-      .as[(String, Int, Double, String)]
-
     val inputs = List("region", "nation", "supplier", "customer", "part", "lineitem", "orders")
       .map(name => s"./TPCH/tpch_$name.csv")
+
     val reducedInputs = List("region", "nation")
       .map(name => s"./TPCH/tpch_$name.csv")
     time {Sindy.discoverINDs(reducedInputs, spark)}

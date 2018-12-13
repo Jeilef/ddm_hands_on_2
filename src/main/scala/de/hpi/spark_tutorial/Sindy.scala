@@ -6,6 +6,19 @@ object Sindy {
 
   def discoverINDs(inputs: List[String], spark: SparkSession): Unit = {
 
-    // TODO
+    val datasets = inputs.map(file => spark.read
+      .option("inferSchema", "true")
+      .option("header", "true")
+      .option("delimiter", ";")
+      .csv(file))
+
+    //datasets.flatMap(row => row.columns.map(
+    //  columnName => (columnName, row.getAs(columnName))
+    //))
+    val temp = datasets.flatMap(row => row.columns)
+    println(temp)
+
+
+
   }
 }
