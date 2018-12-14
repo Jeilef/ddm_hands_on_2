@@ -1,27 +1,35 @@
-package de.hpi.spark_tutorial
+package de.hpi.spark_hands_on
+
+import java.io.File
 
 import org.apache.spark.sql.{Dataset, Encoder, SparkSession}
-import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.classification.DecisionTreeClassificationModel
-import org.apache.spark.ml.classification.DecisionTreeClassifier
-import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
-import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 
-// A Scala case class; works out of the box as Dataset type using Spark's implicit encoders
-case class Person(name:String, surname:String, age:Int)
+case class Config(cores: Int = 4,
+                  path: String = "./TPCH")
 
-// A non-case class; requires an encoder to work as Dataset type
-class Pet(var name:String, var age:Int) {
-  override def toString = s"Pet(name=$name, age=$age)"
-}
-
-object SimpleSpark extends App {
+object SparkHandsOn extends App {
+  var workers = 4
+  var path = "./TPCH"
 
   override def main(args: Array[String]): Unit = {
+    val parser = new scopt.OptionParser[Config]("SparkHandsOn") {
+      opt[Int]('c', "cores") action { (x, c) =>
+        c.copy(cores = x) } text "describes the number of cores that are to be used."
 
-    // Turn off logging
+      opt[String]('p', "path") action { (x, c) =>
+        c.copy(path = x) } text "describes the path to the directory which contains the data."
+    }
+
+    parser.parse(args, Config()) match {
+      case Some(config) =>
+        workers = config.cores
+        path = config.path
+      case None =>
+    }
+
+    println(s"Starting with $workers cores and at path $path...")
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
 
@@ -33,7 +41,7 @@ object SimpleSpark extends App {
     val sparkBuilder = SparkSession
       .builder()
       .appName("SparkTutorial")
-      .master("local[4]") // local, with 4 worker cores
+      .master(s"local[$workers]") // local, with 4 worker cores
     val spark = sparkBuilder.getOrCreate()
 
     // Set the default number of shuffle partitions (default is 200, which is too high for local deployment)
@@ -53,11 +61,20 @@ object SimpleSpark extends App {
       result
     }
 
-    val inputs = List("region", "nation", "supplier", "customer", "part", "lineitem", "orders")
-      .map(name => s"./TPCH/tpch_$name.csv")
+    def getDataFiles(path: String):List[String] = {
+      val d = new File(path)
+      if(d.exists && d.isDirectory) d.listFiles.filter(file =>
+        file.isFile &&
+          file.getName.split('.').last.contentEquals("csv"))
+        .map(_.getPath).toList else List[String]()
+    }
 
+    val inputs = getDataFiles(path)
+
+   // println(inputs)
     val reducedInputs = List("region", "nation")
-      .map(name => s"./TPCH/tpch_$name.csv")
+      .map(name => s"./$path/tpch_$name.csv")
+
     time {Sindy.discoverINDs(inputs, spark)}
   }
 }

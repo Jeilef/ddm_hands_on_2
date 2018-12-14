@@ -1,4 +1,4 @@
-package de.hpi.spark_tutorial
+package de.hpi.spark_hands_on
 
 import org.apache.spark.sql.SparkSession
 
@@ -24,8 +24,6 @@ object Sindy {
       .reduce(_.union(_))
       .persist()
 
-    println("Pair Matching complete...")
-
     val occurrences = longDatasets
       .map(e => (e._2, 1))
       .rdd.reduceByKey(_+_)
@@ -33,8 +31,6 @@ object Sindy {
       .withColumnRenamed("_1", "column_name")
       .withColumnRenamed("_2", "value_count")
       .persist()
-
-    println("Counting complete...")
 
     longDatasets
       .map(e => (e._1, List(e._2)))
