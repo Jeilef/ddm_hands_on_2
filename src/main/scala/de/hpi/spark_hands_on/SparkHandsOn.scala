@@ -43,10 +43,9 @@ object SparkHandsOn extends App {
       .appName("SparkTutorial")
       .master(s"local[$workers]") // local, with 4 worker cores
     val spark = sparkBuilder.getOrCreate()
-    val partitions = 2 * workers
 
     // Set the default number of shuffle partitions (default is 200, which is too high for local deployment)
-    spark.conf.set("spark.sql.shuffle.partitions", s"$partitions") //
+    spark.conf.set("spark.sql.shuffle.partitions", "8") //
 
     // Importing implicit encoders for standard library classes and tuples that are used as Dataset types
 
